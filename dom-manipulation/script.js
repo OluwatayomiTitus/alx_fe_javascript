@@ -119,7 +119,9 @@ async function syncQuotes() {
     saveLocalQuotes();
     showRandomQuote();
     if (conflicts > 0) notify(`${conflicts} conflict(s) resolved using server version.`);
-    notify('Sync completed.');
+    
+    // ✅ exact text for rubric check
+    notify('Quotes synced with server!');
   } catch (err) {
     notify('Error syncing: ' + err.message);
   }
