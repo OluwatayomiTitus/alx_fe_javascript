@@ -1,44 +1,4 @@
 // ---------------------
-// Mock server
-// ---------------------
-const mockServer = (() => {
-  let serverQuotes = [
-    { id: 1, text: "Server: Knowledge is power.", category: "Education", updatedAt: Date.now() - 100000 },
-    { id: 2, text: "Server: The journey of a thousand miles begins with one step.", category: "Motivation", updatedAt: Date.now() - 100000 }
-  ];
-  let nextId = 3;
-
-  function delay(ms) { return new Promise(res => setTimeout(res, ms)); }
-
-  return {
-    fetchQuotes: async () => {
-      await delay(200);
-      return JSON.parse(JSON.stringify(serverQuotes));
-    },
-    postQuotes: async (quotesToPost) => {
-      await delay(200);
-      const posted = [];
-      quotesToPost.forEach(q => {
-        if (q.id && q.id > 0) {
-          // update existing
-          const idx = serverQuotes.findIndex(s => s.id === q.id);
-          if (idx >= 0) {
-            serverQuotes[idx] = { ...q, updatedAt: Date.now() };
-            posted.push(serverQuotes[idx]);
-          }
-        } else {
-          // new quote
-          const newQuote = { ...q, id: nextId++, updatedAt: Date.now() };
-          serverQuotes.push(newQuote);
-          posted.push(newQuote);
-        }
-      });
-      return JSON.parse(JSON.stringify(posted));
-    }
-  };
-})();
-
-// ---------------------
 // Local Storage
 // ---------------------
 const LS_KEY = 'quotes';
@@ -99,12 +59,29 @@ function notify(msg) {
 // ---------------------
 // Server Interaction
 // ---------------------
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+
 async function fetchQuotesFromServer() {
-  return await mockServer.fetchQuotes();
+  const response = await fetch(`${SERVER_URL}.json`);
+  const data = await response.json();
+  // map data to quote structure (simulate category)
+  return data.slice(0, 5).map(item => ({
+    id: item.id,
+    text: item.title,
+    category: 'Server',
+    updatedAt: Date.now()
+  }));
 }
 
 async function postQuotesToServer(quotesToPost) {
-  return await mockServer.postQuotes(quotesToPost);
+  const promises = quotesToPost.map(q =>
+    fetch(SERVER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(q)
+    }).then(res => res.json())
+  );
+  return Promise.all(promises);
 }
 
 // ---------------------
@@ -112,36 +89,40 @@ async function postQuotesToServer(quotesToPost) {
 // ---------------------
 async function syncQuotes() {
   notify('Syncing with server...');
-  const serverData = await fetchQuotesFromServer();
-
-  // 1. Upload local unsynced quotes (negative IDs)
-  const localUnsynced = quotes.filter(q => q.id <= 0);
-  if (localUnsynced.length) {
-    const posted = await postQuotesToServer(localUnsynced);
-    posted.forEach((p, i) => {
-      const idx = quotes.findIndex(q => q.id === localUnsynced[i].id);
-      if (idx >= 0) quotes[idx] = p; // replace temp id with server-assigned id
-    });
-    notify(`Uploaded ${posted.length} local quote(s) to server.`);
-  }
-
-  // 2. Merge server quotes
-  let conflicts = 0;
-  serverData.forEach(s => {
-    const local = quotes.find(q => q.id === s.id);
-    if (!local) {
-      quotes.push(s); // new from server
-    } else if (local.text !== s.text || local.category !== s.category) {
-      // conflict: server wins
-      quotes[quotes.indexOf(local)] = s;
-      conflicts++;
+  try {
+    // 1. Upload local unsynced quotes
+    const localUnsynced = quotes.filter(q => q.id <= 0);
+    if (localUnsynced.length) {
+      const posted = await postQuotesToServer(localUnsynced);
+      posted.forEach((p, i) => {
+        const idx = quotes.findIndex(q => q.id === localUnsynced[i].id);
+        if (idx >= 0) quotes[idx] = { ...p, category: localUnsynced[i].category, updatedAt: Date.now() };
+      });
+      notify(`Uploaded ${posted.length} local quote(s) to server.`);
     }
-  });
 
-  saveLocalQuotes();
-  showRandomQuote();
-  if (conflicts > 0) notify(`${conflicts} conflict(s) resolved using server version.`);
-  notify('Sync completed.');
+    // 2. Fetch server quotes
+    const serverData = await fetchQuotesFromServer();
+
+    // 3. Merge server data (server wins on conflicts)
+    let conflicts = 0;
+    serverData.forEach(s => {
+      const local = quotes.find(q => q.id === s.id);
+      if (!local) {
+        quotes.push(s);
+      } else if (local.text !== s.text || local.category !== s.category) {
+        quotes[quotes.indexOf(local)] = s;
+        conflicts++;
+      }
+    });
+
+    saveLocalQuotes();
+    showRandomQuote();
+    if (conflicts > 0) notify(`${conflicts} conflict(s) resolved using server version.`);
+    notify('Sync completed.');
+  } catch (err) {
+    notify('Error syncing: ' + err.message);
+  }
 }
 
 // ---------------------
@@ -158,6 +139,4 @@ setInterval(syncQuotes, 10000);
 // ---------------------
 // Init
 // ---------------------
-window.onload = () => {
-  showRandomQuote();
-};
+window.onload = () => showRandomQuote();
