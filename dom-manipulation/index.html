@@ -3,28 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Quote Generator</title>
+  <title>Dynamic Quote Generator - Sync</title>
 </head>
 <body>
-  <h1>Dynamic Quote Generator</h1>
-
-  <!-- Category Filter -->
-  <select id="categoryFilter" onchange="filterQuotes()">
-    <option value="all">All Categories</option>
-  </select>
+  <h1>Dynamic Quote Generator - Sync</h1>
 
   <!-- Quote Display -->
   <div id="quoteDisplay"></div>
 
   <!-- Controls -->
-  <button id="newQuote">Show New Quote</button>
+  <button id="newQuote">Show Random Quote</button>
+  <button id="syncNow">Sync Now</button>
 
   <!-- Add Quote Form -->
   <div>
     <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
     <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button onclick="addQuote()">Add Quote</button>
+    <button id="addQuoteBtn">Add Quote</button>
   </div>
+
+  <!-- Notifications -->
+  <div id="notifications" style="margin-top:10px; color: green;"></div>
 
   <script src="script.js"></script>
 </body>
