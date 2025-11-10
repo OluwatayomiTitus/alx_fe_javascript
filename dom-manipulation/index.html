@@ -1,20 +1,29 @@
- <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Quote Generator</title>
-  </head>
-  <body>
-    <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dynamic Quote Generator — Storage & JSON</title>
+</head>
+<body>
+  <h1>Dynamic Quote Generator</h1>
+
+  <!-- Display -->
+  <div id="quoteDisplay">Press "Show New Quote"</div>
+  <div id="quoteMeta"></div>
+
+  <!-- Controls -->
+  <div>
     <button id="newQuote">Show New Quote</button>
-    <div>
-    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button onclick="addQuote()">Add Quote</button>
+    <button id="openAddForm">Add Quote</button>
+    <button id="exportJson">Export Quotes (JSON)</button>
+    <!-- Import file input -->
+    <input type="file" id="importFile" accept=".json" />
   </div>
-  
+
+  <!-- Place where JS will inject the add-quote form -->
+  <div id="formContainer"></div>
+
   <script src="script.js"></script>
-  </body>
-  </html>
+</body>
+</html>
