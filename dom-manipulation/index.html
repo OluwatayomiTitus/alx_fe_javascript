@@ -1,42 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dynamic Quote Generator — Category Filtering</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Quote Generator</title>
 </head>
 <body>
-  <h1>Dynamic Quote Generator (with Category Filter)</h1>
+  <h1>Dynamic Quote Generator</h1>
 
-  <!-- Category filter dropdown -->
-  <div>
-    <label for="categoryFilter">Filter by Category:</label>
-    <select id="categoryFilter" onchange="filterQuotes()">
-      <option value="all">All Categories</option>
-    </select>
-  </div>
+  <!-- Category Filter -->
+  <select id="categoryFilter" onchange="filterQuotes()">
+    <option value="all">All Categories</option>
+  </select>
 
   <!-- Quote Display -->
-  <div id="quoteDisplay">Press "Show New Quote"</div>
-  <div id="quoteMeta"></div>
+  <div id="quoteDisplay"></div>
 
   <!-- Controls -->
-  <div>
-    <button id="newQuote">Show New Quote</button>
-    <button id="openAddForm">Add Quote</button>
-    <button id="exportJson">Export Quotes (JSON)</button>
-    <input type="file" id="importFile" accept=".json" />
-  </div>
+  <button id="newQuote">Show New Quote</button>
 
-  <!-- Form container -->
-  <div id="formContainer"></div>
-<!-- Add near top or inside body where appropriate -->
-<div id="syncStatus">Sync: idle</div>
-<div id="notifications"></div>
-<!-- Button to manually open conflict resolver -->
-<button id="resolveConflictsBtn" style="display:none">Resolve Conflicts</button>
-<!-- Container for manual conflict UI (hidden until needed) -->
-<div id="conflictContainer" style="display:none; border:1px solid #ccc; padding:8px; margin-top:8px;"></div>
+  <!-- Add Quote Form -->
+  <div>
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button onclick="addQuote()">Add Quote</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
